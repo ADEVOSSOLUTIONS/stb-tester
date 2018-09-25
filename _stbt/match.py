@@ -32,14 +32,14 @@ class MatchParameters(object):
     you don't change the default values from what is documented here.
 
     You should only need to change these parameters when you're trying to match
-    a template image that isn't actually a perfect match -- for example if
+    a reference image that isn't actually a perfect match -- for example if
     there's a translucent background with live TV visible behind it; or if you
-    have a template image of a button's background and you want it to match even
-    if the text on the button doesn't match.
+    have a reference image of a button's background and you want it to match
+    even if the text on the button doesn't match.
 
     :param str match_method:
       The method to be used by the first pass of stb-tester's image matching
-      algorithm, to find the most likely location of the "template" image
+      algorithm, to find the most likely location of the reference image
       within the larger source image.
 
       Allowed values are "sqdiff-normed", "ccorr-normed", and "ccoeff-normed".
@@ -69,13 +69,13 @@ class MatchParameters(object):
         correct.
 
       :"absdiff":
-        Compare the absolute difference of each pixel from the template image
+        Compare the absolute difference of each pixel from the reference image
         against its counterpart from the candidate region in the source video
         frame.
 
       :"normed-absdiff":
-        Normalise the pixel values from both the template image and the
-        candidate region in the source video frame, then compare the absolute
+        Normalise the pixel values from both the reference image and the
+        candidate region in the video frame, then compare the absolute
         difference as with "absdiff".
 
         This gives better results with low-contrast images. We recommend setting
@@ -83,7 +83,7 @@ class MatchParameters(object):
         `confirm_threshold` of 0.30.
 
     :param float confirm_threshold:
-      The maximum allowed difference between any given pixel from the template
+      The maximum allowed difference between any given pixel from the reference
       image and its counterpart from the candidate region in the source video
       frame, as a fraction of the pixel's total luminance range.
 
@@ -212,9 +212,9 @@ def match(image, frame=None, match_parameters=None, region=Region.ALL):
       lookup algorithm.
 
       8-bit BGR numpy arrays are the same format that OpenCV uses for images.
-      This allows generating templates on the fly (possibly using OpenCV) or
-      searching for images captured from the device-under-test earlier in the
-      test script.
+      This allows generating reference images on the fly (possibly using
+      OpenCV) or searching for images captured from the device-under-test
+      earlier in the test script.
 
     :type frame: `stbt.Frame` or `numpy.ndarray`
     :param frame:
@@ -328,8 +328,8 @@ def detect_match(image, timeout_secs=10, match_parameters=None,
     """Generator that yields a sequence of one `MatchResult` for each frame
     processed from the device-under-test's video stream.
 
-    `image` is the image used as the template during matching.  See `stbt.match`
-    for more information.
+    `image` is the image used as the reference during matching. See
+    `stbt.match` for more information.
 
     Returns after `timeout_secs` seconds. (Note that the caller can also choose
     to stop iterating over this function's results at any time.)
