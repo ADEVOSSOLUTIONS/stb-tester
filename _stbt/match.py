@@ -50,23 +50,25 @@ class MatchParameters(object):
       "sqdiff-normed".
 
     :param float match_threshold:
-      How strong a result from the first pass must be, to be considered a
-      match. Valid values range from 0 (anything is considered to match)
-      to 1 (the match has to be pixel perfect). This defaults to 0.8.
+      Overall similarity threshold for the image to be considered a match. This
+      threshold applies to the *average* similarity of all pixels in the image.
+      Valid values range from 0 (anything is considered to match) to 1 (the
+      match has to be pixel perfect). This defaults to 0.8.
 
     :param str confirm_method:
       The method to be used by the second pass of stb-tester's image matching
       algorithm, to confirm that the region identified by the first pass is a
       good match.
 
-      The first pass often gives false positives (it reports a "match" for an
-      image that shouldn't match). The second pass is more CPU-intensive, but
-      it only checks the position of the image that the first pass identified.
-      The allowed values are:
+      The first pass often gives false positives (it can report a "match" for
+      an image that looks substantially different). The second pass is more
+      CPU-intensive, but it only checks the position of the image that the
+      first pass identified. The allowed values are:
 
       :"none":
-        Do not confirm the match. Assume that the potential match found is
-        correct.
+        Do not confirm the match. This is useful if you know that the reference
+        image is different in some of the pixels. For example to find a button,
+        even if the text inside the button is different.
 
       :"absdiff":
         Compare the absolute difference of each pixel from the reference image
@@ -78,14 +80,22 @@ class MatchParameters(object):
         candidate region in the video frame, then compare the absolute
         difference as with "absdiff".
 
-        This gives better results with low-contrast images. We recommend setting
-        this as the default `confirm_method` in stbt.conf, with a
-        `confirm_threshold` of 0.30.
+        This method is better at noticing differences in low-contrast images
+        (compared to the "absdiff" method), but it isn't suitable for reference
+        images that don't have any structure (that is, images that are a single
+        solid color without any lines or variation).
+
+        This is the default method, with a default ``confirm_threshold`` of
+        0.30.
 
     :param float confirm_threshold:
       The maximum allowed difference between any given pixel from the reference
       image and its counterpart from the candidate region in the source video
       frame, as a fraction of the pixel's total luminance range.
+
+      Unlike ``match_threshold``, this threshold applies to each pixel
+      individually: Any pixel that exceeds this threshold will cause the match
+      to fail.
 
       Valid values range from 0 (more strict) to 1.0 (less strict).
       Useful values tend to be around 0.16 for the "absdiff" method, and 0.30
